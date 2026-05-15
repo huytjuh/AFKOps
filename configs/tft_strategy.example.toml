@@ -1,0 +1,7 @@
+preferred_units = ["annie", "lillia", "ahri"]
+preferred_items = ["recurve_bow", "tear", "rod"]
+augment_pick_order = [1, 2, 3]
+shop_buy_order = [1, 2, 3, 4, 5]
+shop_buy_confidence = 0.78
+click_cooldown_seconds = 0.75
+max_clicks_per_minute = 40

@@ -1,0 +1,225 @@
+reference_width = 1600
+reference_height = 1000
+assignment_radius = 55
+
+[[slots]]
+id = "bench_1"
+kind = "bench"
+x = 310
+y = 718
+
+[[slots]]
+id = "bench_2"
+kind = "bench"
+x = 419
+y = 718
+
+[[slots]]
+id = "bench_3"
+kind = "bench"
+x = 528
+y = 718
+
+[[slots]]
+id = "bench_4"
+kind = "bench"
+x = 637
+y = 718
+
+[[slots]]
+id = "bench_5"
+kind = "bench"
+x = 746
+y = 718
+
+[[slots]]
+id = "bench_6"
+kind = "bench"
+x = 855
+y = 718
+
+[[slots]]
+id = "bench_7"
+kind = "bench"
+x = 964
+y = 718
+
+[[slots]]
+id = "bench_8"
+kind = "bench"
+x = 1073
+y = 718
+
+[[slots]]
+id = "bench_9"
+kind = "bench"
+x = 1182
+y = 718
+
+[[slots]]
+id = "field_1"
+kind = "field"
+x = 426
+y = 396
+
+[[slots]]
+id = "field_2"
+kind = "field"
+x = 536
+y = 396
+
+[[slots]]
+id = "field_3"
+kind = "field"
+x = 646
+y = 396
+
+[[slots]]
+id = "field_4"
+kind = "field"
+x = 756
+y = 396
+
+[[slots]]
+id = "field_5"
+kind = "field"
+x = 866
+y = 396
+
+[[slots]]
+id = "field_6"
+kind = "field"
+x = 976
+y = 396
+
+[[slots]]
+id = "field_7"
+kind = "field"
+x = 1086
+y = 396
+
+[[slots]]
+id = "field_8"
+kind = "field"
+x = 481
+y = 477
+
+[[slots]]
+id = "field_9"
+kind = "field"
+x = 591
+y = 477
+
+[[slots]]
+id = "field_10"
+kind = "field"
+x = 701
+y = 477
+
+[[slots]]
+id = "field_11"
+kind = "field"
+x = 811
+y = 477
+
+[[slots]]
+id = "field_12"
+kind = "field"
+x = 921
+y = 477
+
+[[slots]]
+id = "field_13"
+kind = "field"
+x = 1031
+y = 477
+
+[[slots]]
+id = "field_14"
+kind = "field"
+x = 1141
+y = 477
+
+[[slots]]
+id = "field_15"
+kind = "field"
+x = 426
+y = 556
+
+[[slots]]
+id = "field_16"
+kind = "field"
+x = 536
+y = 556
+
+[[slots]]
+id = "field_17"
+kind = "field"
+x = 646
+y = 556
+
+[[slots]]
+id = "field_18"
+kind = "field"
+x = 756
+y = 556
+
+[[slots]]
+id = "field_19"
+kind = "field"
+x = 866
+y = 556
+
+[[slots]]
+id = "field_20"
+kind = "field"
+x = 976
+y = 556
+
+[[slots]]
+id = "field_21"
+kind = "field"
+x = 1086
+y = 556
+
+[[slots]]
+id = "field_22"
+kind = "field"
+x = 481
+y = 637
+
+[[slots]]
+id = "field_23"
+kind = "field"
+x = 591
+y = 637
+
+[[slots]]
+id = "field_24"
+kind = "field"
+x = 701
+y = 637
+
+[[slots]]
+id = "field_25"
+kind = "field"
+x = 811
+y = 637
+
+[[slots]]
+id = "field_26"
+kind = "field"
+x = 921
+y = 637
+
+[[slots]]
+id = "field_27"
+kind = "field"
+x = 1031
+y = 637
+
+[[slots]]
+id = "field_28"
+kind = "field"
+x = 1141
+y = 637

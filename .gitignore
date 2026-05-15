@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# Local runtime captures and trained/exported models can get large quickly.
+data/screenshots/*
+!data/screenshots/.gitkeep
+data/debug/*
+!data/debug/.gitkeep
+!data/debug/tft/
+!data/debug/tft/.gitkeep
+models/*
+!models/.gitkeep
+
+# Downloaded Riot/CommunityDragon asset cache.
+assets/riot/*
+!assets/riot/.gitkeep
+!assets/riot/tft/
+!assets/riot/tft/.gitkeep
+
+# Keep secrets and machine-specific config local.
+.env
+configs/*.local.toml

@@ -1,0 +1,9 @@
+name = "tft"
+dry_run = true
+confidence_threshold = 0.82
+object_detection_threshold = 0.45
+window_title = "League of Legends (TM) Client"
+assets_dir = "assets"
+screenshots_dir = "data/screenshots"
+debug_dir = "data/debug"
+models_dir = "models"

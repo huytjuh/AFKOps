@@ -1,0 +1,2 @@
+"""AFKOps automation framework."""
+
