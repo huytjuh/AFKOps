@@ -16,7 +16,7 @@ from afkops.core.template_cropper import CropBox, TemplateCropper
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Crop a TFT template from a saved screenshot.")
-    parser.add_argument("image", type=Path, help="Screenshot path, usually from data/screenshots/tft.")
+    parser.add_argument("image", type=Path, help="Screenshot path, usually from data/tft/screenshots.")
     parser.add_argument("label", help="Template label, for example round_2_1 or find_match_button.")
     parser.add_argument("--x", type=int, help="Crop left coordinate.")
     parser.add_argument("--y", type=int, help="Crop top coordinate.")
@@ -25,7 +25,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=PROJECT_ROOT / "assets" / "templates" / "tft",
+        default=PROJECT_ROOT / "assets" / "tft" / "teamfight_tactics_ui",
         help="Template output directory.",
     )
     return parser.parse_args()
@@ -51,4 +51,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

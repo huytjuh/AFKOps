@@ -1,7 +1,7 @@
 from afkops.bots.tft.round_admin import TftRoundPlan
+from afkops.bots.tft.matchmaking import TftMatchmaking
+from afkops.bots.tft.requeue import TftRequeue
 from afkops.bots.tft.states import TftClientState, TftGameSubState, TftStateResolver
-from afkops.bots.tft.strategy import TftStrategy
-from afkops.bots.tft.memory import TftMemory
 from afkops.core.vision import Detection
 
 
@@ -39,11 +39,24 @@ def test_state_falls_back_to_expected_round_state() -> None:
     assert state.game is TftGameSubState.CAROUSEL
 
 
-def test_strategy_uses_league_client_priority() -> None:
-    detections = [detection("play_button"), detection("find_match_button")]
-    state = TftStateResolver().resolve(detections)
+def test_resolves_league_postgame_state() -> None:
+    state = TftStateResolver().resolve([detection("play_again_button")])
 
-    action = TftStrategy().choose_next_action(state, detections, TftMemory())
+    assert state.client is TftClientState.LEAGUE_CLIENT
+    assert state.game is TftGameSubState.POSTGAME
+
+
+def test_league_client_uses_matchmaking_priority() -> None:
+    detections = [detection("play_button"), detection("find_match_button")]
+
+    action = TftMatchmaking().start_matchmaking(detections)
 
     assert action.detection is not None
     assert action.detection.label == "find_match_button"
+
+
+def test_postgame_clicks_play_again() -> None:
+    action = TftRequeue().play_again([detection("play_again_button")])
+
+    assert action.detection is not None
+    assert action.detection.label == "play_again_button"

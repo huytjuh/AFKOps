@@ -9,14 +9,14 @@ def detection(label: str, x: int, y: int, confidence: float = 1.0) -> Detection:
 
 
 def test_board_layout_loads_bench_and_field_slots() -> None:
-    layout = BoardLayout.load(Path("assets/layouts/tft/board_1600x1000.toml"))
+    layout = BoardLayout.load(Path("assets/tft/teamfight_tactics_ui/board_1600x1000.toml"))
 
     assert len([slot for slot in layout.slots if slot.kind == "bench"]) == 9
     assert len([slot for slot in layout.slots if slot.kind == "field"]) == 28
 
 
 def test_board_matrix_assigns_champion_to_nearest_slot() -> None:
-    layout = BoardLayout.load(Path("assets/layouts/tft/board_1600x1000.toml"))
+    layout = BoardLayout.load(Path("assets/tft/teamfight_tactics_ui/board_1600x1000.toml"))
 
     matrix = BoardMatrixBuilder().build(
         layout,
@@ -32,7 +32,7 @@ def test_board_matrix_assigns_champion_to_nearest_slot() -> None:
 
 
 def test_board_matrix_builds_slot_occupancy_without_champion_identity() -> None:
-    layout = BoardLayout.load(Path("assets/layouts/tft/board_1600x1000.toml"))
+    layout = BoardLayout.load(Path("assets/tft/teamfight_tactics_ui/board_1600x1000.toml"))
 
     matrix = BoardMatrixBuilder().build_occupancy(
         layout,
@@ -49,7 +49,7 @@ def test_board_matrix_builds_slot_occupancy_without_champion_identity() -> None:
 
 
 def test_board_layout_scales_to_client_size() -> None:
-    layout = BoardLayout.load(Path("assets/layouts/tft/board_1600x1000.toml"))
+    layout = BoardLayout.load(Path("assets/tft/teamfight_tactics_ui/board_1600x1000.toml"))
 
     scaled = layout.scaled(image_width=800, image_height=500)
 
@@ -57,7 +57,7 @@ def test_board_layout_scales_to_client_size() -> None:
 
 
 def test_board_layout_has_staggered_field_rows() -> None:
-    layout = BoardLayout.load(Path("assets/layouts/tft/board_1600x1000.toml"))
+    layout = BoardLayout.load(Path("assets/tft/teamfight_tactics_ui/board_1600x1000.toml"))
     fields = [slot for slot in layout.slots if slot.kind == "field"]
 
     assert fields[0].center == (426, 396)

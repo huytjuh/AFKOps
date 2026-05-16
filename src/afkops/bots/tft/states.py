@@ -21,6 +21,7 @@ class TftGameSubState(str, Enum):
     COMBAT = "combat"
     AUGMENT = "augment"
     GAME_OVER = "game_over"
+    POSTGAME = "postgame"
 
 
 @dataclass(frozen=True)
@@ -38,6 +39,7 @@ class TftStateResolver:
         "accept_button",
         "confirm_button",
     }
+    postgame_labels = {"play_again_button"}
     augment_labels = {"augment_choice_1", "augment_choice_2", "augment_choice_3"}
     carousel_labels = {"carousel_unit", "carousel_marker"}
     planning_labels = {
@@ -63,6 +65,9 @@ class TftStateResolver:
         previous_state: TftState | None = None,
     ) -> TftState:
         labels = {detection.label for detection in detections}
+        if labels & self.postgame_labels:
+            return TftState(client=TftClientState.LEAGUE_CLIENT, game=TftGameSubState.POSTGAME)
+
         game_labels = (
             self.augment_labels
             | self.carousel_labels

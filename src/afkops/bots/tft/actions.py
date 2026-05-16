@@ -17,6 +17,7 @@ class TftActionKind(str, Enum):
     BUY_XP = "buy_xp"
     REROLL = "reroll"
     COLLECT_LOOT = "collect_loot"
+    PLAY_AGAIN = "play_again"
 
 
 @dataclass(frozen=True)

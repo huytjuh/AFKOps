@@ -3,7 +3,7 @@ from __future__ import annotations
 from afkops.bots.tft.actions import TftAction, TftActionKind, wait
 from afkops.bots.tft.memory import TftMemory
 from afkops.bots.tft.round_admin import TftRoundType
-from afkops.bots.tft.states import TftClientState, TftGameSubState, TftState
+from afkops.bots.tft.states import TftGameSubState, TftState
 from afkops.bots.tft.strategy_config import TftStrategyConfig
 from afkops.core.vision import Detection
 
@@ -21,9 +21,6 @@ class TftStrategy:
     def choose_next_action(
         self, state: TftState, detections: list[Detection], memory: TftMemory
     ) -> TftAction:
-        if state.client is TftClientState.LEAGUE_CLIENT:
-            return self._league_client_action(detections)
-
         round_info = memory.current_round
 
         if state.game is None:
@@ -51,19 +48,6 @@ class TftStrategy:
             return self._planning_action(detections, memory)
 
         return wait(f"No action for {state.game.value}.")
-
-    def _league_client_action(self, detections: list[Detection]) -> TftAction:
-        actions = [
-            ("accept_button", TftActionKind.ACCEPT_MATCH, "Accept ready check."),
-            ("confirm_button", TftActionKind.CLICK_TARGET, "Confirm client prompt."),
-            ("find_match_button", TftActionKind.QUEUE_MATCH, "Queue for TFT match."),
-            ("play_button", TftActionKind.CLICK_TARGET, "Open play flow."),
-        ]
-        for label, kind, reason in actions:
-            target = self._first_detected([label], detections)
-            if target:
-                return TftAction(kind, reason, target)
-        return wait("Waiting in League client.")
 
     def _pick_augment(self, detections: list[Detection]) -> TftAction:
         labels = [f"augment_choice_{slot}" for slot in self.config.augment_pick_order]

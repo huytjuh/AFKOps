@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--templates-dir",
         type=Path,
-        default=PROJECT_ROOT / "assets" / "templates" / "tft",
+        default=PROJECT_ROOT / "assets" / "tft" / "teamfight_tactics_ui",
         help="Directory containing .png templates.",
     )
     parser.add_argument("--threshold", type=float, default=0.0, help="Only print scores >= threshold.")

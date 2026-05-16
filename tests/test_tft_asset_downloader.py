@@ -37,7 +37,7 @@ def test_collects_asset_refs_from_record() -> None:
             }
         ],
         "pbe",
-        Path("assets/riot/tft/set17"),
+        Path("assets/tft/game_assets"),
     )
 
     assert len(refs) == 1

@@ -32,8 +32,8 @@ def main() -> None:
         dry_run=True,
         window_title=args.window_title,
         assets_dir=PROJECT_ROOT / "assets",
-        screenshots_dir=PROJECT_ROOT / "data" / "screenshots",
-        debug_dir=PROJECT_ROOT / "data" / "debug",
+        screenshots_dir=PROJECT_ROOT / "data" / "tft" / "screenshots",
+        debug_dir=PROJECT_ROOT / "data" / "tft" / "debug",
         models_dir=PROJECT_ROOT / "models",
     )
     bot = TftBot(config)

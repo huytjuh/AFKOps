@@ -4,6 +4,43 @@ confidence_threshold = 0.82
 object_detection_threshold = 0.45
 window_title = "League of Legends (TM) Client"
 assets_dir = "assets"
-screenshots_dir = "data/screenshots"
-debug_dir = "data/debug"
+screenshots_dir = "data/tft/screenshots"
+debug_dir = "data/tft/debug"
 models_dir = "models"
+tft_yolo_model_path = "models/tft/tft_fast_yolo.pt"
+tft_yolo_base_model = "yolo11n.pt"
+tft_yolo_threshold = 0.03
+tft_yolo_image_size = 960
+riot_client_path = 'C:\Riot Games\Riot Client\RiotClientServices.exe'
+riot_client_args = ["--launch-product=teamfighttactics", "--launch-patchline=live"]
+riot_client_process_names = [
+  "LeagueClient",
+  "LeagueClientUx",
+  "LeagueClientUxRender",
+  "League of Legends",
+  "RiotClientServices",
+  "RiotClientUx",
+  "RiotClientUxRender",
+]
+riot_client_window_titles = ["League of Legends (TM) Client", "League of Legends"]
+riot_login_window_titles = ["Riot Client", "Riot Sign In", "Sign in"]
+riot_login_timeout_seconds = 30.0
+riot_login_startup_delay_seconds = 5.0
+riot_login_form_delay_seconds = 5.0
+riot_login_form_scan_seconds = 180.0
+riot_login_form_scan_interval_seconds = 2.0
+riot_login_form_keywords = ["username", "password"]
+tft_play_button_min_wait_seconds = 5.0
+tft_play_button_scan_seconds = 120.0
+tft_play_button_scan_interval_seconds = 2.0
+tft_play_button_click_delay_min_seconds = 0.5
+tft_play_button_click_delay_max_seconds = 1.0
+tft_click_after_move_delay_min_seconds = 0.15
+tft_click_after_move_delay_max_seconds = 0.35
+tft_play_button_text = "play"
+tft_matchmaking_step_wait_seconds = 2.0
+tft_matchmaking_scan_seconds = 120.0
+tft_matchmaking_scan_interval_seconds = 2.0
+tft_launcher_to_matchmaking_delay_seconds = 60.0
+tft_credentials_path = "configs/tft_credentials.local.toml"
+strategy_config_path = "configs/tft_strategy.local.toml"

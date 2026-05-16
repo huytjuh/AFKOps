@@ -1,58 +1,51 @@
 from __future__ import annotations
 
-from pathlib import Path
 from time import sleep
 
 from afkops.bots.tft.actions import TftActionKind
+from afkops.bots.tft.assets import TftAssetPaths
 from afkops.bots.tft.board import BoardLayout, BoardMatrixBuilder
+from afkops.bots.tft.client_launcher import TftClientLauncher, TftCredentials
+from afkops.bots.tft.gameplay import TftGameplay
+from afkops.bots.tft.matchmaking import TftMatchmaking
 from afkops.bots.tft.memory import TftMemory
+from afkops.bots.tft.requeue import TftRequeue
 from afkops.bots.tft.progression_monitor import TftProgressionMonitor
-from afkops.bots.tft.round_admin import TftRoundPlan
 from afkops.bots.tft.shop import TftShopRecognizer
 from afkops.bots.tft.states import TftGameSubState, TftStateResolver
 from afkops.bots.tft.strategy import TftStrategy
 from afkops.bots.tft.strategy_config import TftStrategyConfig
+from afkops.bots.tft.yolo_vision import TftYoloVision
 from afkops.core.config import BotConfig
 from afkops.core.input import MouseController
-from afkops.core.object_detection import ObjectDetectionModel
 from afkops.core.safety import SafetyController
 from afkops.core.screen import ScreenCapture
 from afkops.core.vision import Detection, DetectionOverlayWriter, TemplateDetector
 
 
-NON_SHOP_CHAMPION_TOKENS = {
-    "animasquadprop",
-    "darkstardamagetracker",
-    "darkstar_fakeunit",
-    "drxtracker",
-    "enemy_",
-    "ivernminion",
-    "missfortune_traitclone",
-    "primordiantracker",
-    "pve_",
-    "summon",
-    "timebreakercore",
-}
-
-
 class TftBot:
-    """TFT app bot that reads the screen and acts through a strategy."""
+    """Four-module TFT runner: launch, matchmaking, gameplay, requeue."""
 
     def __init__(self, config: BotConfig) -> None:
         self.config = config
         self.capture = ScreenCapture()
         self.detector = TemplateDetector(threshold=config.confidence_threshold)
-        self.shop_model = ObjectDetectionModel(
-            config.models_dir / "tft" / "shop_detector.pt",
-            threshold=config.object_detection_threshold,
-        )
+        self.yolo_vision = TftYoloVision(config)
         self.mouse = MouseController(dry_run=config.dry_run)
-        self.templates_dir = config.assets_dir / "templates" / "tft"
-        self.debug_dir = config.debug_dir / "tft"
-        self.board_layout = BoardLayout.load(config.assets_dir / "layouts" / "tft" / "board_1600x1000.toml")
+        self.assets = TftAssetPaths(config.assets_dir)
+        self.debug_dir = (
+            config.debug_dir
+            if config.debug_dir.name == "debug" and config.debug_dir.parent.name == "tft"
+            else config.debug_dir / "tft"
+        )
+        self.board_layout = BoardLayout.load(self.assets.board_layout)
         self.board_matrix_builder = BoardMatrixBuilder()
-        strategy_config = TftStrategyConfig.load(Path("configs/tft_strategy.local.toml"))
+        strategy_config = TftStrategyConfig.load(config.strategy_config_path)
         self.strategy = TftStrategy(strategy_config)
+        self.launcher = TftClientLauncher(config)
+        self.matchmaking = TftMatchmaking(config)
+        self.gameplay = TftGameplay(self.strategy)
+        self.requeue = TftRequeue()
         self.shop_recognizer = TftShopRecognizer(
             strategy_config.preferred_units,
             buy_confidence=strategy_config.shop_buy_confidence,
@@ -65,6 +58,9 @@ class TftBot:
         self.state_resolver = TftStateResolver()
         self.progression = TftProgressionMonitor()
         self.overlay_writer = DetectionOverlayWriter()
+
+    def start_client(self, credentials: TftCredentials | None = None) -> bool:
+        return self.launcher.start_tft_client(credentials)
 
     def run(self, tick_seconds: float = 1.0) -> None:
         print(f"Starting TFT bot app loop. dry_run={self.config.dry_run}")
@@ -97,7 +93,12 @@ class TftBot:
                 detections,
             )
 
-        action = self.strategy.choose_next_action(state, detections, self.memory)
+        if state.game is TftGameSubState.POSTGAME:
+            action = self.requeue.play_again(detections)
+        elif state.game is None:
+            action = self.matchmaking.start_matchmaking(detections)
+        else:
+            action = self.gameplay.play_game(state, detections, self.memory)
         target = action.detection
         board_points = [(slot.id, slot.x, slot.y) for slot in scaled_layout.slots]
         self.overlay_writer.save(
@@ -136,13 +137,11 @@ class TftBot:
 
     def find_targets(self, screenshot) -> list[Detection]:
         detections: list[Detection] = []
-        for label, path in self.target_templates():
-            if not Path(path).exists():
-                continue
+        for label, path in self.assets.target_templates():
             detection = self.detector.find(screenshot, path, label)
             if detection:
                 detections.append(detection)
-        detections.extend(self.shop_model.detect(screenshot))
+        detections.extend(self.yolo_vision.detect(screenshot))
         detections.extend(self.shop_recognizer.buy_detections(detections))
         return detections
 
@@ -154,38 +153,8 @@ class TftBot:
             previous_state=self.memory.detected_state,
         )
         self.memory.update_tick(self.progression.admin.current, state)
-        return self.strategy.choose_next_action(state, detections, self.memory).detection
-
-    def target_templates(self) -> list[tuple[str, Path]]:
-        templates = [
-            ("play_button", self.templates_dir / "play_button.png"),
-            ("accept_button", self.templates_dir / "accept_button.png"),
-            ("find_match_button", self.templates_dir / "find_match_button.png"),
-            ("confirm_button", self.templates_dir / "confirm_button.png"),
-            ("buy_xp_button", self.templates_dir / "buy_xp_button.png"),
-            ("reroll_button", self.templates_dir / "reroll_button.png"),
-            ("champion_shop_slot_1", self.templates_dir / "champion_shop_slot_1.png"),
-            ("champion_shop_slot_2", self.templates_dir / "champion_shop_slot_2.png"),
-            ("champion_shop_slot_3", self.templates_dir / "champion_shop_slot_3.png"),
-            ("champion_shop_slot_4", self.templates_dir / "champion_shop_slot_4.png"),
-            ("champion_shop_slot_5", self.templates_dir / "champion_shop_slot_5.png"),
-            ("augment_choice_1", self.templates_dir / "augment_choice_1.png"),
-            ("augment_choice_2", self.templates_dir / "augment_choice_2.png"),
-            ("augment_choice_3", self.templates_dir / "augment_choice_3.png"),
-            ("carousel_unit", self.templates_dir / "carousel_unit.png"),
-            ("carousel_marker", self.templates_dir / "carousel_marker.png"),
-            ("combat_marker", self.templates_dir / "combat_marker.png"),
-            ("enemy_board_marker", self.templates_dir / "enemy_board_marker.png"),
-            ("loot_orb", self.templates_dir / "loot_orb.png"),
-            ("item_orb", self.templates_dir / "item_orb.png"),
-        ]
-        for round_info in TftRoundPlan().rounds:
-            label = f"round_{round_info.stage}_{round_info.round}"
-            templates.append((label, self.templates_dir / f"{label}.png"))
-        champions_dir = self.templates_dir / "champions"
-        if champions_dir.exists():
-            for path in sorted(champions_dir.glob("*.png")):
-                if any(token in path.stem.lower() for token in NON_SHOP_CHAMPION_TOKENS):
-                    continue
-                templates.append((f"champion_{path.stem}", path))
-        return templates
+        if state.game is None:
+            return self.matchmaking.start_matchmaking(detections).detection
+        if state.game is TftGameSubState.POSTGAME:
+            return self.requeue.play_again(detections).detection
+        return self.gameplay.play_game(state, detections, self.memory).detection

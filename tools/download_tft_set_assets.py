@@ -228,13 +228,13 @@ def is_shop_champion_id(owner_id: str) -> bool:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Download TFT Set 17 ML assets from CommunityDragon.")
     parser.add_argument("--version", default="pbe", help="CommunityDragon version, for example pbe/latest.")
-    parser.add_argument("--output-dir", type=Path, default=Path("assets/riot/tft/set17"))
+    parser.add_argument("--output-dir", type=Path, default=Path("assets/tft/game_assets"))
     parser.add_argument("--dry-run", action="store_true", help="Collect and print refs without files.")
     parser.add_argument("--limit", type=int, help="Download only the first N assets for a smoke test.")
     parser.add_argument(
         "--copy-champion-templates",
         action="store_true",
-        help="Copy downloaded champion shop portraits into assets/templates/tft/champions.",
+        help="Copy downloaded champion shop portraits into assets/tft/game_assets/champions.",
     )
     return parser.parse_args()
 
@@ -259,7 +259,7 @@ def main() -> None:
             download_file(ref.url, Path(ref.output_path))
 
     if args.copy_champion_templates and not args.dry_run:
-        copy_champion_templates(all_refs, Path("assets/templates/tft/champions"))
+        copy_champion_templates(all_refs, Path("assets/tft/game_assets/champions"))
 
     print(f"Manifest: {args.output_dir / 'manifest.json'}")
     print(f"Assets selected: {len(all_refs)}")

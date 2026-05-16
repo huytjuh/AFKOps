@@ -11,11 +11,10 @@ AFKOps/
 ├── apps/
 │   └── tft_app.py
 ├── assets/
-│   └── templates/
-│       ├── tft/
-│       ├── hearthstone/
-│       ├── slay_the_spire/
-│       └── twitch_viewer/
+│   └── tft/
+│       ├── league_client/
+│       ├── teamfight_tactics_ui/
+│       └── game_assets/
 ├── configs/
 │   └── tft.example.toml
 ├── data/
@@ -48,10 +47,10 @@ AFKOps/
 - `src/afkops/core/screen.py`: captures the screen with `mss`.
 - `src/afkops/core/vision.py`: shared OpenCV detection primitives.
 - `src/afkops/core/input.py`: mouse interaction with dry-run protection.
-- `src/afkops/bots/tft/bot.py`: TFT target priority loop.
-- `assets/templates/<bot>/`: screenshots of clickable buttons for template matching.
+- `src/afkops/bots/tft/bot.py`: small orchestrator for the four TFT modules.
+- `assets/tft/`: TFT-specific client templates, in-game UI templates, and set assets.
 - `models/`: future object detection weights, such as YOLO exports.
-- `data/screenshots/`: local captured screenshots for labeling/training.
+- `data/tft/screenshots/`: local TFT screenshots for labeling/training.
 - `data/labels/`: annotations for object detection training.
 
 ## TFT Bot Start
@@ -78,6 +77,16 @@ The app runs in `dry_run` mode by default, so it prints intended clicks instead 
 mouse. Change `dry_run=True` to `dry_run=False` in `apps/tft_app.py` only after your detections
 are reliable.
 
+Before matchmaking, `TftClientLauncher.prepare_for_matchmaking(credentials)` checks for an open
+League/TFT client. If none is found, it starts `riot_client_path`, waits for the login window,
+scans for login text such as `username` or `password` when OCR is available, enters the Riot
+credentials, and waits for the client to become ready. Without OCR it falls back to
+`riot_login_form_delay_seconds`.
+
+Credentials are loaded from `configs/tft_credentials.local.toml` by default, with `TFT_USERNAME`
+and `TFT_PASSWORD` as a fallback. The local credentials file is git-ignored; use
+`configs/tft_credentials.example.toml` as the tracked template.
+
 Capture a screenshot for templates or training data:
 
 ```powershell
@@ -90,32 +99,32 @@ only when you intentionally want the whole monitor.
 Screenshots are saved to:
 
 ```text
-data/screenshots/tft/
+data/tft/screenshots/
 ```
 
 Crop a template from a saved screenshot:
 
 ```powershell
-python apps/crop_tft_template.py data/screenshots/tft/tft_YYYYMMDD_HHMMSS.png round_2_1
+python apps/crop_tft_template.py data/tft/screenshots/tft_YYYYMMDD_HHMMSS.png round_2_1
 ```
 
 The cropper opens an OpenCV selection window. Drag the area, then press Enter or Space. You can
 also crop with exact coordinates:
 
 ```powershell
-python apps/crop_tft_template.py data/screenshots/tft/example.png round_2_1 --x 900 --y 20 --width 80 --height 30
+python apps/crop_tft_template.py data/tft/screenshots/example.png round_2_1 --x 900 --y 20 --width 80 --height 30
 ```
 
 Templates are saved to:
 
 ```text
-assets/templates/tft/
+assets/tft/teamfight_tactics_ui/
 ```
 
 Evaluate saved templates against a screenshot:
 
 ```powershell
-python apps/evaluate_tft_templates.py data/screenshots/tft/example.png --threshold 0.75
+python apps/evaluate_tft_templates.py data/tft/screenshots/example.png --threshold 0.75
 ```
 
 Example output:
@@ -128,7 +137,7 @@ find_match_button            0.883 at (720, 610)
 Each TFT app loop writes a detection overlay to:
 
 ```text
-data/debug/tft/latest_detection.png
+data/tft/debug/latest_detection.png
 ```
 
 Detected boxes are blue/orange. The selected click target is green.
@@ -136,29 +145,37 @@ Detected boxes are blue/orange. The selected click target is green.
 Add button templates here:
 
 ```text
-assets/templates/tft/play_button.png
-assets/templates/tft/accept_button.png
-assets/templates/tft/find_match_button.png
-assets/templates/tft/confirm_button.png
-assets/templates/tft/buy_xp_button.png
-assets/templates/tft/reroll_button.png
-assets/templates/tft/champion_shop_slot_1.png
-assets/templates/tft/champion_shop_slot_2.png
-assets/templates/tft/champion_shop_slot_3.png
-assets/templates/tft/champion_shop_slot_4.png
-assets/templates/tft/champion_shop_slot_5.png
-assets/templates/tft/augment_choice_1.png
-assets/templates/tft/augment_choice_2.png
-assets/templates/tft/augment_choice_3.png
-assets/templates/tft/carousel_unit.png
-assets/templates/tft/carousel_marker.png
-assets/templates/tft/combat_marker.png
-assets/templates/tft/enemy_board_marker.png
+assets/tft/league_client/play_button.png
+assets/tft/league_client/accept_button.png
+assets/tft/league_client/find_match_button.png
+assets/tft/league_client/confirm_button.png
+assets/tft/league_client/play_again_button.png
+assets/tft/teamfight_tactics_ui/buy_xp_button.png
+assets/tft/teamfight_tactics_ui/reroll_button.png
+assets/tft/teamfight_tactics_ui/champion_shop_slot_1.png
+assets/tft/teamfight_tactics_ui/champion_shop_slot_2.png
+assets/tft/teamfight_tactics_ui/champion_shop_slot_3.png
+assets/tft/teamfight_tactics_ui/champion_shop_slot_4.png
+assets/tft/teamfight_tactics_ui/champion_shop_slot_5.png
+assets/tft/teamfight_tactics_ui/augment_choice_1.png
+assets/tft/teamfight_tactics_ui/augment_choice_2.png
+assets/tft/teamfight_tactics_ui/augment_choice_3.png
+assets/tft/teamfight_tactics_ui/carousel_unit.png
+assets/tft/teamfight_tactics_ui/carousel_marker.png
+assets/tft/teamfight_tactics_ui/combat_marker.png
+assets/tft/teamfight_tactics_ui/enemy_board_marker.png
 ```
 
 ## TFT States
 
-The TFT bot is split into two top-level states:
+The TFT bot is organized around four concise modules:
+
+- `client_launcher.py`: starts the local game client when a client path and credentials are provided.
+- `matchmaking.py`: opens the TFT play flow, starts matchmaking, and accepts ready checks.
+- `gameplay.py`: plays the match through the configured TFT strategy.
+- `requeue.py`: clicks play again so matchmaking can restart.
+
+The TFT state resolver still splits live screen state into two top-level states:
 
 - `league_client`: handles the League of Legends client flow and clicks queue/match buttons.
 - `game_client`: handles the actual TFT game window.
@@ -280,7 +297,7 @@ shop_text_tft17_akali
 The board and bench coordinate asset lives here:
 
 ```text
-assets/layouts/tft/board_1600x1000.toml
+assets/tft/teamfight_tactics_ui/board_1600x1000.toml
 ```
 
 It defines 9 bench slots and 28 field hex slots using coordinates from a 1600x1000 League client
@@ -289,8 +306,8 @@ capture. The layout scales to the current captured client size.
 Champion templates can be placed here:
 
 ```text
-assets/templates/tft/champions/ahri.png
-assets/templates/tft/champions/teemo.png
+assets/tft/game_assets/champions/ahri.png
+assets/tft/game_assets/champions/teemo.png
 ```
 
 Those templates are detected as labels like:
@@ -311,7 +328,7 @@ field_2 = teemo
 ```
 
 The debug overlay draws the bench and field slot centers as pink markers so the coordinates can be
-tuned from `data/debug/tft/latest_detection.png`.
+tuned from `data/tft/debug/latest_detection.png`.
 
 For live planning decisions, the bot currently uses occupancy-only board detection. Model classes
 such as these mark the nearest bench or field slot as occupied without trying to identify the
@@ -328,6 +345,46 @@ field_unit
 
 If all nine bench slots are occupied, the strategy skips shop buying even when a preferred unit is
 detected.
+
+## TFT YOLO Vision
+
+TFT has one shared lightweight YOLO detector for launcher and gameplay signals:
+
+```text
+models/tft/tft_fast_yolo.pt
+```
+
+The default base model is `yolo11n.pt`, with `imgsz=640` and a lower default confidence threshold
+for speed and recall. If the model file is missing or Ultralytics is not installed, detection
+returns no results and the bot falls back to templates/OCR where available.
+
+Dataset folders live under:
+
+```text
+data/tft/yolo/images/train/
+data/tft/yolo/images/val/
+data/tft/yolo/labels/train/
+data/tft/yolo/labels/val/
+```
+
+The dataset class map is in:
+
+```text
+configs/tft_yolo_dataset.yaml
+```
+
+Initial classes cover launcher controls, login text/fields, matchmaking controls, shop slots,
+champion/text detections, board units, and core gameplay controls. Train with:
+
+```powershell
+python tools/train_tft_yolo.py --epochs 50 --imgsz 640
+```
+
+After training, copy the best weights to:
+
+```text
+models/tft/tft_fast_yolo.pt
+```
 
 ## TFT Set Assets
 
@@ -348,13 +405,13 @@ tfttraits.json
 Downloaded assets and a manifest are saved to:
 
 ```text
-assets/riot/tft/set17/
+assets/tft/game_assets/
 ```
 
 Champion shop portraits are copied into:
 
 ```text
-assets/templates/tft/champions/
+assets/tft/game_assets/champions/
 ```
 
 The bot ignores helper/PvE/fake-unit champion portraits such as `pve_minion`, trackers, summons,

@@ -1,0 +1,29 @@
+path: ../data/tft/yolo
+train: images/train
+val: images/val
+
+names:
+  0: login_ui_username_field
+  1: login_ui_password_field
+  2: login_txt_username
+  3: login_txt_password
+  4: play_ui_play_button
+  5: play_txt_play
+  6: client_ui_quickplay
+  7: client_txt_quickplay
+  8: client_ui_findmatch
+  9: client_txt_findmatch
+  10: client_ui_accept
+  11: client_txt_accept
+  12: ingame_champion_shop_slot
+  13: ingame_ui_buy_xp_button
+  14: ingame_ui_reroll_button
+  15: ingame_ui_augment_choice
+  16: ingame_ui_carousel_unit
+  17: ingame_ui_loot_orb
+  18: ingame_ui_item_orb
+  19: ingame_board_unit
+  20: ingame_bench_unit
+  21: ingame_field_unit
+  22: ingame_shop_champion_unknown
+  23: ingame_hop_text_unknown

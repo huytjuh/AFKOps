@@ -37,7 +37,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    output_dir = PROJECT_ROOT / "data" / "screenshots" / "tft"
+    output_dir = PROJECT_ROOT / "data" / "tft" / "screenshots"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

@@ -9,9 +9,10 @@ from afkops.core.vision import Detection
 
 
 class ObjectDetectionModel:
-    def __init__(self, model_path: Path, threshold: float = 0.45) -> None:
+    def __init__(self, model_path: Path, threshold: float = 0.45, image_size: int | None = None) -> None:
         self.model_path = model_path
         self.threshold = threshold
+        self.image_size = image_size
         self._model: Any | None = None
 
     @property
@@ -23,7 +24,11 @@ class ObjectDetectionModel:
         if model is None:
             return []
 
-        results = model.predict(image, verbose=False, conf=self.threshold)
+        predict_kwargs: dict[str, Any] = {"verbose": False, "conf": self.threshold}
+        if self.image_size is not None:
+            predict_kwargs["imgsz"] = self.image_size
+
+        results = model.predict(image, **predict_kwargs)
         detections: list[Detection] = []
         for result in results:
             names = result.names
